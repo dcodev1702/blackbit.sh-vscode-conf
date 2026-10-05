@@ -1,282 +1,260 @@
-# BlackBit Models in VS Code
+# BlackBit VOID in VS Code
 
-Repeatable setup for BlackBit models in the VS Code Copilot chat model picker.
+Set up BlackBit VOID in the VS Code / GitHub Copilot Chat model picker, with optional
+Ubuntu command-line diagnostics. This guide follows the repair recorded on
+2026-10-04 in [bb-solutions.md](bb-solutions.md).
 
-Validated on macOS with VS Code **1.140.0**, on **2026-10-03**. All six configured models were visually confirmed in the actual picker. Model registration and visibility were verified; successful BlackBit completions, tool calls, vision, and maximum context sizes were not tested during that verification.
+The actual picker fix was to **disable the experimental model picker in User
+settings**. Reinstalling the provider, replacing credentials, or changing model
+capabilities was not required.
 
-## Configuration Files
+## 1. Apply the Picker Fix
 
-The exact relevant settings from the verified setup are available as separate JSON files:
+In the VS Code profile you use for chat, run **Preferences: Open User Settings
+(JSON)** from the Command Palette. Merge the properties from
+[settings.example.jsonc](settings.example.jsonc) into the existing settings object:
 
-| File | Purpose and destination |
-| --- | --- |
-| [.vscode/settings.json](.vscode/settings.json) | Active workspace settings. Contains only the pre-existing session-sync setting; BlackBit settings are inherited from User Settings and do not depend on this file. |
-| [.vscode/user-settings.example.json](.vscode/user-settings.example.json) | Exact relevant user-level settings: `chat.experimentalModelPicker: false` and `chat.agentHost.byokModels.enabled: true`. Merge into **Preferences: Open User Settings (JSON)**. Unrelated personal settings are omitted. |
-| [.vscode/chatLanguageModels.example.json](.vscode/chatLanguageModels.example.json) | Exact BlackBit provider fields and all six model definitions, with `apiKey` deliberately omitted. Apply through the active user-profile model configuration opened by **Chat: Manage Language Models**. |
-
-The two `*.example.json` files are reference examples; **VS Code does not automatically load them from this directory**. Only the active workspace settings file above applies automatically here.
-
-For a new setup, create the BlackBit provider and enter its API key using step 3 first. Then merge the model example's fields into that generated BlackBit group, preserving its existing `apiKey` reference and all other provider groups. The safest operation is to replace only that group's `models` array after confirming its name, vendor, and API type. Do not replace the entire user-profile configuration with the example or remove the generated credential reference.
-
-## 1. Prerequisites
-
-- VS Code with Copilot Chat enabled and the **Custom Endpoint** provider available under **Chat: Manage Language Models**.
-- A BlackBit account, a valid API key, and access to the models you intend to use. BlackBit usage and billing are separate from Copilot usage.
-- Permission to use third-party model providers under your organization's policies.
-
-The endpoint used by this configuration is:
-
-```text
-https://void.blackbit.sh/v1/chat/completions
-```
-
-The API format is **Chat Completions**, not Responses or Messages.
-
-An API key in a workspace environment file does **not** automatically configure VS Code's model provider. Enter the key through the provider's API-key prompt as described below. The existing `ACCOUNT_NUMBER` variable is not referenced by this VS Code configuration.
-
-## 2. Make the Model Picker Predictable
-
-The experimental picker opens on the currently selected provider. In the verified build, it showed **Copilot** while custom models were behind an icon-only sparkle tab. This made correctly registered BlackBit models look absent.
-
-**Already applied on this machine:** both settings below are in this VS Code profile's User Settings. The models and stored API-key reference are also user-profile-wide. Opening a different folder with this profile does not require copying any workspace files. A different profile or an explicit workspace override can still change the effective settings.
-
-For the same behavior in **all future workspaces**:
-
-1. Open the Command Palette with **Command+Shift+P**.
-2. Run **Preferences: Open User Settings (JSON)**.
-3. Merge these entries into the existing settings object. Keep all unrelated settings and avoid duplicate keys.
-
-```json
+```jsonc
 {
     "chat.experimentalModelPicker": false,
     "chat.agentHost.byokModels.enabled": true
 }
 ```
 
-- `chat.experimentalModelPicker: false` uses the standard, searchable picker with explicit provider labels.
-- `chat.agentHost.byokModels.enabled: true` also exposes configured BYOK models to supported **Copilot agent-host sessions inside VS Code**. It is not standalone Copilot CLI configuration and does not imply support in every other agent/session type.
+- Update existing properties rather than adding duplicates. Preserve other settings
+  and JSONC comments; do not replace the whole settings file.
+- Use **User** settings, not just Workspace or Remote settings. A workspace or other
+  applicable override can still change the result.
+- `chat.experimentalModelPicker: false` is the workaround established by the repair.
+- `chat.agentHost.byokModels.enabled: true` was already enabled and was preserved.
+  It enables BYOK in supported agent-host sessions; it was not identified as the cause.
+- Save work and run **Developer: Reload Window** if the picker does not refresh.
+  If you newly enabled agent-host BYOK, restart the agent host or VS Code as well.
 
-For an optional **workspace-only** picker override, merge this entry into **Preferences: Open Workspace Settings (JSON)** instead. This is not needed when inheriting the user-level configuration above:
+The example in this repository is not loaded by VS Code automatically. Do not put
+it in a workspace settings file and expect it to apply to every folder.
 
-```json
-{
-    "chat.experimentalModelPicker": false
-}
-```
+## 2. Check or Add the Provider
 
-This workspace's picker override has been removed so it inherits the User Settings, just like a new folder. Its existing session-sync setting in [.vscode/settings.json](.vscode/settings.json) is unrelated and does not need to be copied to a new workspace. Workspace settings take precedence over user settings, so check for an explicit workspace `true` if the tabbed picker returns.
+Run **Chat: Manage Language Models**. If BlackBit already exists, keep its model
+definitions and saved API-key reference. Check that the provider and desired models
+are not hidden; do not recreate the group just to repair picker visibility.
 
-## 3. Create or Reuse the BlackBit Provider
-
-**Already configured on this VS Code profile?** Reuse the existing **BlackBit** group. Do not add a second group just because you opened another workspace. Continue to step 4 if updating its models, or step 5 if the definitions are already present.
-
-**Fresh machine or profile:**
-
-1. Open **Command+Shift+P** and run **Chat: Manage Language Models**.
-2. Select **Add Models**, then **Custom Endpoint**. Do not choose the deprecated OpenAI-compatible provider.
-3. Use **BlackBit** as the group name. If a separate display-name prompt appears, use **BlackBit** there too.
-4. Enter your BlackBit API key into VS Code's provider/API-key prompt, not into Copilot chat or this document.
-5. Select **Chat Completions** when asked for the API type.
-6. VS Code opens the user-profile model configuration. Keep the generated provider group and its API-key reference.
-
-For the default macOS profile, the model configuration is located at:
-
-```text
-~/Library/Application Support/Code/User/chatLanguageModels.json
-```
-
-Use **Manage Language Models** to reach the active profile's configuration rather than assuming this path when using another profile, VS Code edition, or operating system. The active model registry is a user-profile configuration. The model example under `.vscode` is only a reference and does not register models by itself.
-
-Confirm these fields on the BlackBit provider group:
-
-| Field | Value |
+| Property | Expected value |
 | --- | --- |
-| `name` | `BlackBit` |
-| `vendor` | `customendpoint` |
-| `apiType` | `chat-completions` |
-| `apiKey` | Keep the secret reference generated by VS Code |
-| `models` | Use the array in step 4 |
+| Display name | `BlackBit VOID` |
+| Vendor | `customendpoint` |
+| API type | `chat-completions` |
+| Model endpoint | `https://void.blackbit.sh/v1/chat/completions` |
+| Tools capability | Enabled for models used in Agent mode |
 
-The working setup stores `apiKey` as a reference beginning with `${input:` rather than a literal key. **Preserve that entire generated reference.** Do not invent a reference or copy one from another machine: the destination needs its own stored secret. Re-enter the key through VS Code's provider configuration when moving to a fresh machine/profile or rotating credentials.
+### First-Time Setup on Another Machine or Profile
 
-Never publish the literal key, commit an environment file containing it, or include credentials in screenshots or diagnostic output.
+1. In **Chat: Manage Language Models**, add a **Custom Endpoint** provider named
+   **BlackBit VOID** and choose **Chat Completions**.
+2. Enter your API key directly into VS Code's secret input. Use the provider's
+   **Update API Key** action when updating an existing group.
+3. Open the provider's JSON configuration, or run **Chat: Open Language Models
+   (JSON)**. Keep the generated `apiKey` reference and all unrelated providers.
+4. Copy the desired entries from the `models` array in
+   [chatLanguageModels.json](chatLanguageModels.json) into the BlackBit group's
+   `models` array. Check the provider properties above and save.
+5. Apply the User settings in section 1, then verify selection in section 3.
 
-## 4. Install the Six Model Definitions
+The repository template retains all 19 model definitions from the existing
+configuration. It is a dated configuration snapshot, not a guarantee that every
+model is currently available or that its advertised limits are unchanged.
 
-In the existing **BlackBit** group, replace only the value of its `models` property with the array below. Keep the group's other fields, especially `apiKey`. Keep all other provider groups in the outer array.
+| Model selected during the repair | API model ID | Configured max input | Configured max output |
+| --- | --- | ---: | ---: |
+| GLM 5.3 | `zai_glm_5_3` | 967232 | 32768 |
+| DeepSeek V4 Pro | `deepseek_v4_pro` | 1015832 | 32768 |
 
-Do **not** replace the entire model-configuration file with this array: these are model objects, not provider groups.
+**Credentials are separate from model definitions.** The template's
+`${input:blackbitApiKey}` is only a placeholder reference, not a working credential.
+Copying a `${input:chat.lm.secret.<id>}` reference from another computer does not copy
+the secret behind it. Re-enter the API key through VS Code on the destination
+machine/profile. Never put a literal key in the model JSON or edit VS Code's
+secret-storage database.
 
-```json
-[
-    {
-        "id": "zai_glm_5_3",
-        "name": "BlackBit - GLM 5.3",
-        "url": "https://void.blackbit.sh/v1/chat/completions",
-        "apiType": "chat-completions",
-        "toolCalling": true,
-        "vision": false,
-        "thinking": true,
-        "streaming": true,
-        "contextWindow": 1000000,
-        "maxOutputTokens": 128000,
-        "zeroDataRetentionEnabled": true,
-        "supportsReasoningEffort": ["low", "medium", "high", "max"],
-        "reasoningEffortFormat": "chat-completions"
-    },
-    {
-        "id": "adverserial_cyberglm",
-        "name": "BlackBit - CyberGLM",
-        "url": "https://void.blackbit.sh/v1/chat/completions",
-        "apiType": "chat-completions",
-        "toolCalling": true,
-        "vision": false,
-        "thinking": true,
-        "streaming": true,
-        "contextWindow": 131072,
-        "maxOutputTokens": 16384,
-        "zeroDataRetentionEnabled": true,
-        "supportsReasoningEffort": ["minimal", "low", "medium", "high", "xhigh", "max"],
-        "reasoningEffortFormat": "chat-completions"
-    },
-    {
-        "id": "adverserial_cyberkimi",
-        "name": "BlackBit - CyberKimi",
-        "url": "https://void.blackbit.sh/v1/chat/completions",
-        "apiType": "chat-completions",
-        "toolCalling": true,
-        "vision": false,
-        "thinking": true,
-        "streaming": true,
-        "contextWindow": 750000,
-        "maxOutputTokens": 32768,
-        "zeroDataRetentionEnabled": true
-    },
-    {
-        "id": "deepseek_v4_pro",
-        "name": "BlackBit - DeepSeek V4 Pro",
-        "url": "https://void.blackbit.sh/v1/chat/completions",
-        "apiType": "chat-completions",
-        "toolCalling": true,
-        "vision": false,
-        "thinking": true,
-        "streaming": true,
-        "contextWindow": 1048576,
-        "maxOutputTokens": 128000,
-        "zeroDataRetentionEnabled": true,
-        "supportsReasoningEffort": ["high", "max"],
-        "reasoningEffortFormat": "chat-completions"
-    },
-    {
-        "id": "alibaba_qwen3_8_max",
-        "name": "BlackBit - Qwen 3.8 Max",
-        "url": "https://void.blackbit.sh/v1/chat/completions",
-        "apiType": "chat-completions",
-        "toolCalling": true,
-        "vision": true,
-        "thinking": true,
-        "streaming": true,
-        "contextWindow": 1000000,
-        "maxOutputTokens": 64000,
-        "zeroDataRetentionEnabled": true,
-        "supportsReasoningEffort": ["low", "medium", "high", "max"],
-        "reasoningEffortFormat": "chat-completions"
-    },
-    {
-        "id": "orca_orcacyber_zero_1_0",
-        "name": "BlackBit - OrcaCyber Zero 1.0",
-        "url": "https://void.blackbit.sh/v1/chat/completions",
-        "apiType": "chat-completions",
-        "toolCalling": true,
-        "vision": false,
-        "thinking": true,
-        "streaming": true,
-        "contextWindow": 1000000,
-        "maxOutputTokens": 128000,
-        "zeroDataRetentionEnabled": true,
-        "supportsReasoningEffort": ["none", "low", "medium", "high", "xhigh", "max"],
-        "reasoningEffortFormat": "chat-completions"
-    }
-]
+### Configuration Location and Scope
+
+Use the VS Code commands above to find the active profile's files. Default-profile
+paths for stable VS Code are:
+
+| File | Windows desktop | Native Linux desktop |
+| --- | --- | --- |
+| User settings | `%APPDATA%\Code\User\settings.json` | `~/.config/Code/User/settings.json` |
+| Model definitions | `%APPDATA%\Code\User\chatLanguageModels.json` | `~/.config/Code/User/chatLanguageModels.json` |
+
+Custom profiles, Insiders, portable installations, and a custom `XDG_CONFIG_HOME`
+can use different paths. In a Windows-to-Ubuntu Remote-SSH workflow, use the active
+desktop profile's configuration commands, not a guessed file under the remote
+server directory. The Ubuntu helper below does not configure VS Code or its secrets.
+
+Other workspaces using the same profile inherit its User settings unless an
+applicable override takes precedence. Different profiles, accounts, installations,
+and computers can have separate settings and credentials. Do not assume Settings
+Sync transfers the provider configuration or its secrets.
+
+## 3. Verify Actual Picker Selection
+
+1. Create a **new local Copilot chat** in the intended profile. Use a **Local**
+   session as the baseline if the UI offers a session-type selector.
+2. Open the model picker, expand **Other Models**, and search for **GLM 5.3**.
+3. Select it and confirm that the picker button itself changes to **GLM 5.3**.
+4. Repeat with **DeepSeek V4 Pro**.
+5. Optionally send a short, nonsensitive message to check authentication and
+   inference. Provider requests can incur charges.
+6. Save work, restart VS Code, create another local chat, and repeat the selection
+   check. Repeat in another workspace using the same profile when needed.
+
+The repair record establishes successful selection of both models in the actual
+picker. Its follow-up fresh-chat automation was inconclusive; do the restart and
+new-chat checks yourself rather than treating them as already verified.
+
+**Other Models** may collapse again without losing the provider. New chats may
+start with your Copilot default; availability does not force a default selection.
+Agent-host BYOK remains experimental and version-dependent. Unsupported
+remote/cloud session types, other extensions' catalogs, organization policy, and
+provider maintenance are not fixed by these settings. Harness preferences such as
+`chat.defaultToCopilotHarness` are not prerequisites for this repair.
+
+## Repository Files
+
+Commit the following files, including the hidden helper and empty environment
+example. This is also the allowlist to use when preparing a shareable archive.
+
+| File | Purpose |
+| --- | --- |
+| [README.md](README.md) | Setup, verification, and publication guide |
+| [bb-solutions.md](bb-solutions.md) | Detailed repair evidence, limits, and safe PowerShell configuration check |
+| [settings.example.jsonc](settings.example.jsonc) | Properties to merge into VS Code User settings |
+| [chatLanguageModels.json](chatLanguageModels.json) | 19-model template with a placeholder secret reference |
+| [.env.example](.env.example) | Empty credential template for optional shell diagnostics |
+| [.gitignore](.gitignore) | Excludes local environment files and the one-off UI script |
+| [install-blackbit.sh](install-blackbit.sh) | Optional Ubuntu credential-helper installer |
+| [.blackbit/load-blackbit-key.sh](.blackbit/load-blackbit-key.sh) | Parses a local environment file without executing it |
+| [test-blackbit-models.sh](test-blackbit-models.sh) | Optional direct API diagnostics, not a VS Code picker test |
+| [test-blackbit-offline.py](test-blackbit-offline.py) | Offline regression tests with mocked responses and dummy credentials |
+
+Do **not** publish `.env`, other populated `.env.*` files, account numbers, saved
+profile state, logs, screenshots containing secrets, or VS Code secret storage.
+Git ignore rules do not remove files that have already been committed, and they do
+not filter an ordinary ZIP archive. If a real key was published, revoke or rotate it.
+
+The original Windows picker-inspection script is a local, one-off UI automation
+artifact. It depends on a particular window title and accessibility controls. It
+is preserved locally but ignored and is not needed in the published package.
+
+## Optional Ubuntu API Diagnostics
+
+These tools are independent of the picker fix. They require Bash, `curl`, Python 3,
+and standard Ubuntu command-line utilities. They do not install VS Code, update
+User settings, or set the provider's saved credential.
+
+### Offline Regression Checks
+
+Run the regression suite with Python 3 on Ubuntu. It uses only the standard
+library, a mock `curl`, and dummy credentials; it does not read your real key or
+contact BlackBit:
+
+```bash
+python3 ./test-blackbit-offline.py -v
 ```
 
-Save the configuration and resolve any errors in VS Code's **Problems** panel before continuing.
+### Prepare a Local Credential
 
-### Important Configuration Details
+From this directory, create a private environment file only if one does not
+already exist:
 
-- Preserve model IDs exactly, including the spelling `adverserial`. A display name can change; an API model ID cannot be guessed from that name.
-- The full `/v1/chat/completions` URL and `chat-completions` API type are intentional.
-- `toolCalling: true` tells VS Code to offer the model in Agent mode. It does not add tool support to the provider; validate actual tool use separately.
-- Keep the `BlackBit - ` display-name prefixes so searching for BlackBit finds every model.
-- In the verified build, `contextWindow` is the total input-plus-output budget. VS Code accepts it without `maxInputTokens` and derives input capacity as `contextWindow - maxOutputTokens`.
-- If an older version rejects `contextWindow`, update VS Code or use `maxInputTokens` with that derived value and omit `contextWindow`. Do not enter the full context window as the input limit while also allocating output tokens.
-- The limits, vision flags, and reasoning-effort options above reproduce the current local configuration; they are not independent certification of BlackBit's current service capabilities. Confirm them against your account's current model documentation when reusing this later.
-- `zeroDataRetentionEnabled` is retained to match the existing configuration. It is **not** a guarantee of BlackBit's data-retention policy; check the provider's terms separately.
+```bash
+if [[ ! -e .env ]]; then
+    install -m 600 .env.example .env
+fi
+chmod 600 .env
+```
 
-## 5. Verify Visibility, Then Test a Response
+Edit the empty `BLACKBIT_API_KEY` value privately in your editor. Never enter the
+real key into chat, command history, screenshots, or source control. Quotes,
+optional `export`, CRLF line endings, and a missing final newline are accepted.
+The loader parses the file; it never sources it. An account number is not required
+for API requests.
 
-### Visibility Check
+The validator can use the bundled helper without installing anything:
 
-1. Open Copilot chat in a **Local** session first.
-2. Click the current model's name in the chat input toolbar. On the verified macOS build, **Control+Command+I** focuses chat and **Command+Option+Period** opens its model picker.
-3. Type **BlackBit** into the picker's search field. This is a model search, not a chat message.
-4. Confirm the **BlackBit** heading and all six entries:
+```bash
+bash ./test-blackbit-models.sh --help
+bash ./test-blackbit-models.sh zai_glm_5_3 deepseek_v4_pro
+```
 
-   - BlackBit - CyberGLM
-   - BlackBit - CyberKimi
-   - BlackBit - DeepSeek V4 Pro
-   - BlackBit - GLM 5.3
-   - BlackBit - OrcaCyber Zero 1.0
-   - BlackBit - Qwen 3.8 Max
+**The second command makes billable provider requests.** With no model arguments,
+the script probes every configured model, so start with a small selection. It uses
+`BLACKBIT_API_KEY` when already set; otherwise it loads `BLACKBIT_ENV_FILE`
+(default: `.env` next to the script) without prompting.
 
-The standard picker initially emphasizes suggested/recent models; other models can be under **Other Models**. Searching BlackBit is the reliable check. Use the pin icon beside models you want to find quickly in subsequent picker openings.
+The checks are non-streaming Chat Completions requests: catalog membership, a
+short text response, a harmless `bb_validation_echo` tool call, and a simulated
+tool-result round trip. No real local tool is executed, and no workspace content
+is included in those requests.
 
-If you intentionally keep the experimental picker, use the custom-provider sparkle tab beside **Copilot**, or its search control. The Copilot tab alone is not the complete list of configured providers.
-
-### Small Response Test
-
-Model visibility proves registration, **not** API authentication or successful inference. Test each model you plan to use:
-
-1. Start a new, empty chat so a previous conversation is not sent to the new provider.
-2. Select the desired **BlackBit - ...** model and confirm that name appears on the chat input toolbar.
-3. Send this minimal prompt:
-
-   ```text
-   Reply with exactly OK. Do not call tools.
-   ```
-
-4. Confirm a response arrives without an authentication, quota, or API-format error. This is a real provider request and may be billable.
-5. Separately test a harmless tool operation before relying on Agent mode. For example, in a disposable folder, ask the model to list its filenames without modifying anything, and confirm an actual successful tool result appears.
-
-For a **Copilot agent-host session inside VS Code**, repeat the picker check in that session after enabling `chat.agentHost.byokModels.enabled`. Configuration in a local VS Code chat is not proof that an unrelated session type or standalone CLI uses the same registry.
-
-## 6. Troubleshooting
-
-| Symptom | Action |
+| Result | Meaning |
 | --- | --- |
-| Only Copilot models appear | Set `chat.experimentalModelPicker` to `false` in the effective settings, close/reopen the dropdown, and search BlackBit. Check workspace overrides if you changed only user settings. |
-| BlackBit is missing from Manage Language Models | Check the active VS Code profile. Create the Custom Endpoint group in that profile and enter its API key there. |
-| Group exists, but no matching models appear | Check configuration errors, model objects inside the group's `models` array, and whether the group/models are hidden in Manage Language Models. Use its visibility controls to unhide them; do not edit VS Code's storage database. |
-| Model appears outside Agent mode but not in Agent mode | Verify both the configured `toolCalling` flag and the model's real tool-calling support. |
-| Local chat works, but the Copilot agent-host list differs | Confirm `chat.agentHost.byokModels.enabled` is `true` in User Settings and test a supported Copilot agent-host session. |
-| Settings or model list look stale | Save both configurations, close/reopen the picker, and reopen chat. If needed, finish any active work, then run **Developer: Reload Window** and check again. |
-| Authentication error, HTTP 401/403 | Re-enter the key through the provider's API-key configuration. Check account/model permissions and organization policy. Do not replace secret references with a key in this document. |
-| Model not found or HTTP 404 | Confirm the full endpoint URL and exact API model ID against the current BlackBit catalog. Display labels are not API IDs. |
-| Unsupported parameter or HTTP 400 | Compare the failing request option, especially reasoning effort and token limits, with that model's current BlackBit documentation. Registration does not validate these options against the service. |
-| Rate limit or quota error, HTTP 429 | Check BlackBit account balance, quota, and rate limits. Changing the picker does not resolve provider billing or limits. |
-| Custom Endpoint or BYOK is unavailable | Verify VS Code/Copilot availability and version, then check organization policy. Do not bypass an administrative restriction. |
-| Standalone Copilot CLI does not list these models | This runbook configures VS Code and its supported agent host, not a separate terminal CLI. Follow that CLI's current provider-configuration instructions. |
+| `CHAT PASS` | Response text matches the requested marker |
+| `CHAT PASS*` | Nonempty response text differs from the requested marker |
+| `FAIL` | A request or expected response check failed; errors and empty text are not successful inference |
+| `TOOL_CALL` / `TOOL_ROUNDTRIP PASS` | The direct API passed these limited tool-protocol checks |
 
-For request failures, open **View: Toggle Output** and select the Copilot/Copilot Chat output channel available in your build. Review the error without sharing API keys, authorization headers, or private prompt content.
+The script exits nonzero when a check fails. HTTP 200 alone is not success: the
+body can contain an `error` such as `model_maintenance`. Reasoning can also consume
+the small output budget without producing final text; that probe is inconclusive,
+not a successful chat response. These checks do not establish streaming support,
+VS Code Agent suitability, or picker selection. The older catalog-wide results
+are not a current service-health guarantee.
 
-## 7. Repeat the Setup Later
+### Install the Helper for Interactive Use
 
-**New workspace, same machine/profile:** reuse the BlackBit provider and the already-applied User Settings. No BlackBit configuration needs to be copied into the new workspace. Open the picker, search BlackBit, select a model, and perform the small response test. Check for workspace overrides if the picker differs.
+This step is optional:
 
-**New machine or VS Code profile:** create the provider through Manage Language Models, enter the API key on that machine, install the model array, apply the settings, and repeat both verification checks. Do not assume a copied secret reference has a corresponding stored credential.
+```bash
+bash ./install-blackbit.sh
+source ~/.blackbit/load-blackbit-key.sh
+```
 
-**Adding or updating a model:** obtain its exact current BlackBit API ID and capabilities, edit the existing group's `models` array, keep the BlackBit display-name prefix, and repeat visibility and response checks. Avoid duplicate IDs or duplicate provider groups.
+The installer sets the helper directory and installed script to mode `700`, and
+the local `.env` to `600`. It does not read or copy the credential. The helper
+defaults to `~/BlackBit-VSCode-Ubuntu/.env`; if the checkout is elsewhere, set
+`BLACKBIT_ENV_FILE` to that file before sourcing it. A missing key triggers a
+masked prompt only when the helper is used interactively.
 
-**After a VS Code update:** check whether the experimental-picker workaround is still needed and whether the model schema has changed. Use the installed schema and current documentation rather than assuming this version-specific behavior is permanent.
+Remove the credential from your current shell with `unset BLACKBIT_API_KEY`.
+To rotate it, update the local environment file and separately use **Update API
+Key** in each VS Code profile where you configured BlackBit. The environment file
+is not automatically consumed by VS Code's Custom Endpoint provider.
 
-Official VS Code reference: [Language Models and Custom Endpoints](https://code.visualstudio.com/docs/agent-customization/language-models).
+## Troubleshooting and Rollback
+
+| Symptom | Check |
+| --- | --- |
+| Models appear in management but cannot be selected | Standard picker, expanded Other Models, and model visibility controls |
+| Works in one workspace only | Active profile, applicable setting overrides, and session type |
+| New chat starts on a Copilot model | Select BlackBit; availability and default selection are separate |
+| Direct API works but VS Code authentication fails | Re-enter the provider's saved API key; the shell uses a separate credential source |
+| One model fails while others work | Provider maintenance and response body before changing shared credentials |
+| Warning icon on the provider | Read the actual message and test selection; an icon alone is not a diagnosis |
+
+For the full investigation and a read-only PowerShell 7 configuration check, see
+[bb-solutions.md](bb-solutions.md). Do not run the Windows UI automation script as
+a setup step.
+
+To undo the picker workaround, restore the previous value of
+`chat.experimentalModelPicker`. On the repaired machine it had no explicit User
+value, so rollback means removing only that added property. Preserve the provider,
+secret reference, and pre-existing agent-host BYOK setting.
+
+## References
+
+- [Repair record](bb-solutions.md)
+- [VS Code language models](https://code.visualstudio.com/docs/agent-customization/language-models)
+- [VS Code settings and scopes](https://code.visualstudio.com/docs/configure/settings)
+- [VS Code profiles](https://code.visualstudio.com/docs/configure/profiles)

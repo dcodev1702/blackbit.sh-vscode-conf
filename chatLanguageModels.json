@@ -1,0 +1,237 @@
+[
+  {
+    "name": "BlackBit VOID",
+    "vendor": "customendpoint",
+    "apiKey": "${input:blackbitApiKey}",
+    "apiType": "chat-completions",
+    "models": [
+      {
+        "id": "adverserial_cyberkimi",
+        "name": "CyberKimi",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 717232,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true
+      },
+      {
+        "id": "adverserial_cyberglm",
+        "name": "CyberGLM",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 98304,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true
+      },
+      {
+        "id": "abliteration_abliterated_model",
+        "name": "Abliterated Model",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": true,
+        "maxInputTokens": 229376,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "thinking": true
+      },
+      {
+        "id": "abliteration_abliterated_model_large",
+        "name": "Abliterated Model Large",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 967232,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "thinking": true
+      },
+      {
+        "id": "abliteration_abliterated_model_large_v2",
+        "name": "Abliterated Model Large v2",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 967232,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "thinking": true
+      },
+      {
+        "id": "alibaba_qwen3_7_max",
+        "name": "Qwen 3.7 Max",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 958232,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true
+      },
+      {
+        "id": "alibaba_qwen3_8_max",
+        "name": "Qwen 3.8 Max",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": true,
+        "maxInputTokens": 967232,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true
+      },
+      {
+        "id": "deepseek_v4_flash",
+        "name": "DeepSeek V4 Flash",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 967232,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true
+      },
+      {
+        "id": "deepseek_v4_flash_0731",
+        "name": "DeepSeek V4 Flash 0731",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 967232,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true
+      },
+      {
+        "id": "deepseek_v4_pro",
+        "name": "DeepSeek V4 Pro",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 1015832,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true
+      },
+      {
+        "id": "mistral_large_3",
+        "name": "Mistral Large 3",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 223232,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true
+      },
+      {
+        "id": "moonshotai_kimi_k2_6",
+        "name": "Kimi K2.6",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": true,
+        "maxInputTokens": 229232,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true
+      },
+      {
+        "id": "moonshotai_kimi_k2_7_code",
+        "name": "Kimi K2.7 Code",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": true,
+        "maxInputTokens": 223232,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true
+      },
+      {
+        "id": "poolside_laguna_s_2_1",
+        "name": "Laguna S 2.1",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 967232,
+        "maxOutputTokens": 32768,
+        "streaming": true
+      },
+      {
+        "id": "xiaomi_mimo_v2_6_pro",
+        "name": "MiMo V2.6 Pro",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": true,
+        "maxInputTokens": 1015808,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true
+      },
+      {
+        "id": "xiaomi_mimo_v2_6_pro_ultraspeed",
+        "name": "MiMo V2.6 Pro UltraSpeed",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": true,
+        "maxInputTokens": 1015808,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true
+      },
+      {
+        "id": "zai_glm_5_2",
+        "name": "GLM 5.2",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 967232,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true
+      },
+      {
+        "id": "zai_glm_5_3",
+        "name": "GLM 5.3",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 967232,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true,
+        "supportsReasoningEffort": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "reasoningEffortFormat": "chat-completions"
+      },
+      {
+        "id": "zai_glm_5_turbo",
+        "name": "GLM 5 Turbo",
+        "url": "https://void.blackbit.sh/v1/chat/completions",
+        "toolCalling": true,
+        "vision": false,
+        "maxInputTokens": 170032,
+        "maxOutputTokens": 32768,
+        "streaming": true,
+        "zeroDataRetentionEnabled": true,
+        "thinking": true
+      }
+    ]
+  }
+]
